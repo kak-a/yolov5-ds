@@ -62,7 +62,7 @@ def main(yolo5_config):
     # 输入需要检测的图片或图片目录或视频并处理
     mycap = Image_Capture(yolo5_config.input)
     # 实例化计数器
-    Obj_Counter = Object_Counter(class_names)
+    #Obj_Counter = Object_Counter(class_names)
     # 总帧数
     total_num = mycap.get_length()
     videowriter = None
@@ -71,6 +71,8 @@ def main(yolo5_config):
         fps = 25
     t = int(1000 / fps)
     mkfile_time = datetime.strftime(datetime.now(), '%Y-%m-%d-%H-%M-%S')
+    frame_count = 0
+    start_time = time.time()
     while mycap.ifcontinue():
         ret, img = mycap.read()
         if ret:
@@ -80,11 +82,16 @@ def main(yolo5_config):
                     True：表示只显示当前人数
                     False：表示显示总人数和当前人数
             """
-            result_img = Counting_Processing(img, yolo5_config, Model, class_names, deepsort_tracker, Obj_Counter, isCountPresent = False)
+            result_img = Counting_Processing(img, yolo5_config, Model, class_names, deepsort_tracker, None, isCountPresent = False)
             # print(result_img)
             if type(result_img) == AttributeError:
                 print("错误为{}".format(result_img))
                 exit(1)
+            frame_count += 1
+            elapsed_time = time.time() - start_time
+            current_fps = frame_count / elapsed_time
+            cv2.putText(result_img, f"FPS: {current_fps:.2f}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+    
             if videowriter is None:
                 fourcc = cv2.VideoWriter_fourcc(
                     'm', 'p', '4', 'v')  # opencv3.0
@@ -105,12 +112,12 @@ def main(yolo5_config):
     videowriter.release()
     cv2.destroyAllWindows()
     mycap.release()
+    total_time = time.time() - c
+    avg_fps = frame_count / total_time if total_time > 0 else 0
     print(
-        "\n=> process done {}/{} images, total cost: {:.2f}s [{:.2f} fps]".format(len(os.listdir(yolo5_config.output)),
-                                                                                  total_num, time.time() - c,
-                                                                                  len(os.listdir(
-                                                                                      yolo5_config.output)) / (
-                                                                                              time.time() - c)))
+        "\n=> process done {}/{} frames, total cost: {:.2f}s (avg: {:.2f} fps)".format(frame_count,
+                                                                                  total_num, total_time,
+                                                                                  avg_fps))
 
     print("=> main task finished: {}".format(datetime.now().strftime('%H:%M:%S')))
 
@@ -125,7 +132,7 @@ if __name__ == "__main__":
     parser.add_argument('--output', type=str, default="./output",
                         help='folder to save result imgs, can not use input folder')
     parser.add_argument('--weights', type=str, default='weights/yolov5s.pt', help='model.pt path(s)')
-    parser.add_argument('--img_size', type=int, default=416, help='inference size (pixels)')
+    parser.add_argument('--img_size', type=int, default=320, help='inference size (pixels)')
     parser.add_argument('--conf_thres', type=float, default=0.4, help='object confidence threshold')
     parser.add_argument('--iou_thres', type=float, default=0.4, help='IOU threshold for NMS')
     # GPU（0表示设备的默认的显卡）或CPU

@@ -60,8 +60,8 @@ def count_post_processing(np_img,pred,class_names,inference_shape,Tracker,Obj_Co
                 text_info = '%s,ID:%d' % (class_names[0], int(trackid))
                 plot_one_box(box, np_img, text_info=text_info, color=(0, 0, 255))
     # 可视化计数结果
-    total_num = len(Global.total_person)
-    np_img = Obj_Counter.draw_counter(np_img, present_num, total_num, text, isCountPresent)
+    #total_num = len(Global.total_person)
+    #np_img = Obj_Counter.draw_counter(np_img, present_num, total_num, text, isCountPresent)
     return np_img
 
                 
