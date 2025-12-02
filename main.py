@@ -42,14 +42,9 @@ def main(yolo5_config):
         for m in Model.modules():
             if isinstance(m, nn.Upsample):
                 m.recompute_scale_factor = None
-    # 模型能检测的类别['person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus', 'train', 'truck', 'boat', 'traffic light', ...]
     classnames = Model.module.names if hasattr(Model, 'module') else Model.names
-    # print(classnames)
-    # 只检测人这一个类别，所以只需要在框上面标识出是person即可
-    # 如果想检测其他物体需要在100行附近更改'--classes'的数值，然后在这里把标签改为对应即可
     class_names.append(classnames[0])
     b = time.time()
-    print("==> class names: ", class_names)
     print("=> load model, cost:{:.2f}s".format(b - a))
 
     os.makedirs(yolo5_config.output, exist_ok=True)
@@ -129,8 +124,8 @@ if __name__ == "__main__":
     # 处理后视频的输出路径
     parser.add_argument('--output', type=str, default="./output",
                         help='folder to save result imgs, can not use input folder')
-    parser.add_argument('--weights', type=str, default='weights/yolov5l.pt', help='model.pt path(s)')
-    parser.add_argument('--img_size', type=int, default=640, help='inference size (pixels)')
+    parser.add_argument('--weights', type=str, default='weights/yolov5s.pt', help='model.pt path(s)')
+    parser.add_argument('--img_size', type=int, default=416, help='inference size (pixels)')
     parser.add_argument('--conf_thres', type=float, default=0.4, help='object confidence threshold')
     parser.add_argument('--iou_thres', type=float, default=0.4, help='IOU threshold for NMS')
     # GPU（0表示设备的默认的显卡）或CPU
@@ -141,4 +136,3 @@ if __name__ == "__main__":
     yolo5_config = parser.parse_args()
     print(yolo5_config)
     main(yolo5_config)
-    print("结果保存在：", yolo5_config.output)

@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-
+import traceback
 from . inference import yolov5_prediction,img_preprocessing
 from . post_processing import count_post_processing
 
@@ -17,6 +17,9 @@ def Counting_Processing(input_img,yolo5_config,model,class_names,Tracker,Obj_Cou
         return result_img
 
     except Exception as e:
+        print("--- Error in Counting_Processing ---")
+        traceback.print_exc()
+        print("------------------------------------")
         return e
 
     
